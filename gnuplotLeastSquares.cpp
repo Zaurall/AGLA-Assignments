@@ -681,15 +681,23 @@ void scan() {
 
         std::string function = "";
         for (int j = 0; j < degreeOfPolynomial+1; ++j) {
-            if (j == degreeOfPolynomial) {
-                function += std::to_string(result[j]) + "*x**" + std::to_string(j);
+            char re[200];
+            sprintf(re,"%.16f", result[j]);
+            std::string res = re;
+            std::string degree = std::to_string(j);
+            if (j == 0) {
+                function += res + "*x**" + degree;
             } else {
-                function += std::to_string(result[j]) + "*x**" + std::to_string(j) + "+";
+                if (result[j] > 0) {
+                    function += "+" + res + "*x**" + degree;
+                } else {
+                    function += res + "*x**" + degree;
+                }
             }
         }
 
 
-        fprintf(pipe, "plot '-' title '' with points, %s\n", function.c_str());
+        fprintf(pipe, "plot '-' title '' with points, %s title 'appr'\n", function.c_str());
 
         for (int i = 0; i < lenghOfDataSet; ++i) {
             double x = X[i];
