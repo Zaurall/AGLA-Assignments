@@ -689,8 +689,12 @@ void solveDifferentialEquation(double alpha1, double alpha2, double beta1, doubl
         victims.insert(victims.begin()+i, victim);
         killers.insert(killers.begin()+i, killer);
     }
-    function1 = std::to_string(v_) + "+" + std::to_string(2*q1[0]) + "*cos(" + std::to_string(eugeneVal2) + "*t)";
-    function2 = std::to_string(k_) + "+" + std::to_string(2*q2[1]) + "*sin(" + std::to_string(eugeneVal2) + "*t)";
+    function1 = std::to_string(v_) + "+" + std::to_string(v0) + "*cos(" + std::to_string(eugeneVal2) + "*t)" + "-" +
+                std::to_string(k0*sqrt(alpha2)*beta1) + "*sin(" + std::to_string(eugeneVal2) + "*t)" + "/" +
+                std::to_string(beta2* sqrt(alpha1));
+    function2 = std::to_string(k_) + "+" + std::to_string(k0) + "*cos(" + std::to_string(eugeneVal2) + "*t)" + "+" +
+                std::to_string(v0*sqrt(alpha1)*beta2) + "*sin(" + std::to_string(eugeneVal2) + "*t)" + "/" +
+                std::to_string(beta1* sqrt(alpha2));
 }
 
 void scan() {
@@ -740,8 +744,6 @@ void scan() {
             }
         }
 
-        //fprintf(pipe, "set term png");
-        //fprintf(pipe, "set output 'plot.png'");
         fprintf(pipe, "set title 'Lotka-Volterra Equations'\n");
         fprintf(pipe, "set grid\n");
         fprintf(pipe, "set xlabel 'Time'\n");
@@ -752,31 +754,19 @@ void scan() {
         double minVict = min(victims), maxVict = max(victims);
         double minKill = min(killers), maxKill = max(killers);
         //fprintf(pipe, "set yrange[%d:%d]\n", min(victims) - 2, max(killers) + 2);
-/*        fprintf(pipe, "set xrange[%d:%d]\n", min(X) - 2, max(X) + 2);
-
-        fprintf(pipe, "set style data lines\n");*/
-
-
+/*        fprintf(pipe, "set xrange[%d:%d]\n", min(X) - 2, max(X) + 2); */
+        fprintf(pipe, "set multiplot layout 2,1 rows\n");
         fprintf(pipe, "plot [t=0:%lf] v(t) title 'Prey' with lines, k(t) title 'Predator' with lines\n", timeLimit);
+        fprintf(pipe, "set xlabel 'Prey'\n");
+        fprintf(pipe, "set ylabel 'Predator'\n");
+        fprintf(pipe, "plot '-' title 'Predator' with lines\n", timeLimit);
 
-        /*for (int i = 0; i < numberPoints+1; ++i) {
-            double v = victims[i];
-            double t = timeMoments[i];
-            fprintf(pipe, "%f\t%f\n", v, t);
+        for (int i = 0; i < numberPoints; ++i) {
+            double predator = killers[i];
+            double prey = victims[i];
+            fprintf(pipe, "%f\t%f\n", prey, predator);
         }
-
-        //fprintf(pipe, "%s\n", "e");
-
-        //fprintf(pipe, "plot \n");
-
-        for (int i = 0; i < numberPoints+1; ++i) {
-            double k = killers[i];
-            double t = timeMoments[i];
-            fprintf(pipe, "%f\t%f\n", k, t);
-        }*/
-
-        //fprintf(pipe, "%s\n", "e");
-
+        fprintf(pipe, "%s\n", "e");
         fflush(pipe);
 #ifdef WIN32
         _pclose(pipe);
